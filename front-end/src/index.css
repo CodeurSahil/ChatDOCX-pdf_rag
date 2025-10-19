@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Dark cyberpunk theme - Navy to Black gradients with neon accents */
+    --background: 220 40% 5%;
+    --background-start: 220 40% 8%;
+    --background-end: 220 50% 3%;
+    --foreground: 210 40% 98%;
+
+    --card: 220 35% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 220 35% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Neon cyan/teal for primary actions */
+    --primary: 180 100% 50%;
+    --primary-foreground: 220 40% 5%;
+    --primary-glow: 180 100% 60%;
+
+    /* Glass effect surfaces */
+    --secondary: 220 30% 15%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 220 25% 20%;
+    --muted-foreground: 210 20% 65%;
+
+    /* Neon blue accent */
+    --accent: 200 100% 55%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 30% 18%;
+    --input: 220 30% 18%;
+    --ring: 180 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(180 100% 50%), hsl(200 100% 55%));
+    --gradient-background: linear-gradient(180deg, hsl(220 40% 8%), hsl(220 50% 3%));
+    --gradient-surface: linear-gradient(135deg, hsl(220 35% 12% / 0.6), hsl(220 30% 15% / 0.4));
+
+    /* Shadows with glow */
+    --shadow-glow: 0 0 40px hsl(180 100% 50% / 0.3);
+    --shadow-glow-strong: 0 0 60px hsl(180 100% 50% / 0.5);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-gradient-to-b from-background-start to-background-end text-foreground font-['Inter',sans-serif] antialiased;
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .glass-effect {
+    @apply bg-secondary/40 backdrop-blur-xl border border-border/50;
+  }
+  
+  .glow-text {
+    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+  }
+  
+  .glow-border {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  
+  .glow-border-strong {
+    box-shadow: var(--shadow-glow-strong);
+  }
+}
