@@ -1,73 +1,104 @@
-# Welcome to your Lovable project
+# 💻 **ChatDOCX Frontend Guide**
 
-## Project info
+> The frontend provides an elegant, dark-themed interface for chatting with uploaded documents.
 
-**URL**: https://lovable.dev/projects/e6332ad3-2566-463e-9a60-d92f71054e50
+The ChatDOCX frontend is a modern React application built with TypeScript, featuring a sleek dark theme and smooth animations for an engaging document chat experience.
 
-## How can I edit this code?
+## 🎨 **Tech Stack**
 
-There are several ways of editing your application.
+- ⚛️ **React 18** with TypeScript
+- 🎨 **TailwindCSS** for styling
+- 🎭 **Framer Motion** for animations
+- 🧩 **shadcn/ui** component library
+- 📱 **Responsive design** for all devices
+- 🎯 **Vite** for fast development
 
-**Use Lovable**
+## 🚀 **Setup Steps**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e6332ad3-2566-463e-9a60-d92f71054e50) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### 1. **Navigate to Frontend Directory**
+```bash
+cd front-end
 ```
 
-**Edit a file directly in GitHub**
+### 2. **Install Dependencies**
+```bash
+npm install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 3. **Configure Backend API**
+Update the backend API URL in your environment or config:
+```env
+VITE_API_URL=http://localhost:3000
+```
 
-**Use GitHub Codespaces**
+### 4. **Start Development Server**
+```bash
+npm run dev
+```
+*Frontend runs on `http://localhost:8080`*
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🏗️ **Project Structure**
 
-## What technologies are used for this project?
+```
+front-end/
+├── src/
+│   ├── components/           # React components
+│   │   ├── ChatInterface.tsx    # Main chat interface
+│   │   ├── ChatHeader.tsx       # Chat header with controls
+│   │   ├── ChatInput.tsx        # Message input component
+│   │   ├── MessageBubble.tsx   # Individual message display
+│   │   ├── WelcomeScreen.tsx   # Initial upload screen
+│   │   └── ui/                 # shadcn/ui components
+│   ├── pages/                # Page components
+│   │   ├── Index.tsx            # Main page
+│   │   └── NotFound.tsx         # 404 page
+│   ├── utils/                # Utility functions
+│   │   └── api.ts              # API communication
+│   └── hooks/                 # Custom React hooks
+```
 
-This project is built with:
+## 🔧 **Configuration**
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### **Environment Variables**
+Create a `.env` file in the frontend directory:
+```env
+VITE_API_URL=http://localhost:3000
+```
 
-## How can I deploy this project?
+### **API Integration**
+The frontend communicates with the backend through:
+- **File Upload**: `POST /upload`
+- **Chat Messages**: `POST /chat`
+- **Session Management**: `POST /delete_session`
 
-Simply open [Lovable](https://lovable.dev/projects/e6332ad3-2566-463e-9a60-d92f71054e50) and click on Share -> Publish.
+## 🚀 **Development Commands**
 
-## Can I connect a custom domain to my Lovable project?
+```bash
+# Install dependencies
+npm install
 
-Yes, you can!
+# Start development server
+npm run dev
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# Build for production
+npm run build
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+# Preview production build
+npm run preview
+
+# Lint code
+npm run lint
+```
+
+## 📱 **Features**
+
+- 📄 **File Upload** — Drag-and-drop PDF/DOCX files
+- 💬 **Real-time Chat** — Instant AI responses
+- 🎨 **Markdown Support** — Rich text formatting
+- 📱 **Mobile Responsive** — Works on all devices
+- 🌙 **Dark Theme** — Easy on the eyes
+- ⚡ **Fast Performance** — Optimized React components
+
+---
+
+**Ready to build beautiful document chats! 🎨**
