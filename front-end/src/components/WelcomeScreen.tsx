@@ -1,18 +1,21 @@
-import { Upload, FileText } from "lucide-react";
+import { Upload, FileText, Loader2 } from "lucide-react";
 import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface WelcomeScreenProps {
   onFileUpload: (file: File) => void;
+  isUploading: boolean;
 }
 
-const WelcomeScreen = ({ onFileUpload }: WelcomeScreenProps) => {
+const WelcomeScreen = ({ onFileUpload, isUploading }: WelcomeScreenProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const { toast } = useToast();
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
+
+    if (isUploading) return;
 
     const files = Array.from(e.dataTransfer.files);
     const file = files[0];
@@ -27,9 +30,11 @@ const WelcomeScreen = ({ onFileUpload }: WelcomeScreenProps) => {
         variant: "destructive",
       });
     }
-  }, [onFileUpload, toast]);
+  }, [onFileUpload, toast, isUploading]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isUploading) return;
+    
     const file = e.target.files?.[0];
     if (file) {
       onFileUpload(file);
@@ -53,17 +58,19 @@ const WelcomeScreen = ({ onFileUpload }: WelcomeScreenProps) => {
             Upload your document and start a conversation instantly.
           </p>
           <p className="text-sm text-muted-foreground/70">
-            Powered by AI • Supports PDF & DOCX
+            Powered by Sahil's Dev Lab • Supports PDF & DOCX
           </p>
         </div>
 
         <div
           className={`glass-effect rounded-2xl p-12 transition-all duration-300 ${
-            isDragging ? "glow-border-strong scale-105" : "glow-border"
-          }`}
+            isDragging && !isUploading ? "glow-border-strong scale-105" : "glow-border"
+          } ${isUploading ? "opacity-75" : ""}`}
           onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
+            if (!isUploading) {
+              e.preventDefault();
+              setIsDragging(true);
+            }
           }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
@@ -72,33 +79,49 @@ const WelcomeScreen = ({ onFileUpload }: WelcomeScreenProps) => {
             <div className="mb-6 flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl" />
-                <Upload className="w-20 h-20 text-primary relative animate-float" />
+                {isUploading ? (
+                  <Loader2 className="w-20 h-20 text-primary relative animate-spin" />
+                ) : (
+                  <Upload className="w-20 h-20 text-primary relative animate-float" />
+                )}
               </div>
             </div>
             
             <h3 className="text-2xl font-semibold mb-4 text-foreground">
-              {isDragging ? "Drop your file here" : "Upload Your Document"}
+              {isUploading 
+                ? "Processing your document..." 
+                : isDragging 
+                  ? "Drop your file here" 
+                  : "Upload Your Document"
+              }
             </h3>
             
             <p className="text-muted-foreground mb-8">
-              Drag and drop your PDF or DOCX file here, or click to browse
+              {isUploading 
+                ? "Please wait while we process your document and prepare it for chat."
+                : "Drag and drop your PDF or DOCX file here, or click to browse"
+              }
             </p>
 
-            <input
-              type="file"
-              id="file-upload"
-              className="hidden"
-              accept=".pdf,.docx"
-              onChange={handleFileSelect}
-            />
-            
-            <label
-              htmlFor="file-upload"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-primary text-primary-foreground font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-glow-strong"
-            >
-              <FileText className="w-5 h-5" />
-              Choose File
-            </label>
+            {!isUploading && (
+              <>
+                <input
+                  type="file"
+                  id="file-upload"
+                  className="hidden"
+                  accept=".pdf,.docx"
+                  onChange={handleFileSelect}
+                />
+                
+                <label
+                  htmlFor="file-upload"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-primary text-primary-foreground font-semibold rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-glow-strong"
+                >
+                  <FileText className="w-5 h-5" />
+                  Choose File
+                </label>
+              </>
+            )}
 
             <div className="mt-6 flex items-center justify-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-2">

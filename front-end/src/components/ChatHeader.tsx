@@ -3,18 +3,26 @@ import { Button } from "@/components/ui/button";
 
 interface ChatHeaderProps {
   fileName: string;
-  uploadedAt: Date;
+  uploadedAt: Date | string;
   onNewChat: () => void;
 }
 
 const ChatHeader = ({ fileName, uploadedAt, onNewChat }: ChatHeaderProps) => {
-  const formattedDate = uploadedAt.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  // Ensure uploadedAt is a Date object
+  const date = uploadedAt instanceof Date ? uploadedAt : new Date(uploadedAt);
+  
+  // Check if date is valid
+  const isValidDate = !isNaN(date.getTime());
+  
+  const formattedDate = isValidDate 
+    ? date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : 'Unknown date';
 
   return (
     <header className="glass-effect border-b border-border/50 px-4 py-4 sticky top-0 z-50 backdrop-blur-xl">

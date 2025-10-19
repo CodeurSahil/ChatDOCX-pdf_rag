@@ -27,7 +27,7 @@ const ChatInput = ({ onSend, isLoading = false }: ChatInputProps) => {
   };
 
   return (
-    <div className="glass-effect border-t border-border/50 px-4 py-4 backdrop-blur-xl">
+    <div className="glass-effect border-t border-border/50 px-4 py-4 backdrop-blur-xl bg-background/95">
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
         <div className="flex gap-3 items-end">
           <Textarea
