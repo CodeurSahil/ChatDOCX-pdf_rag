@@ -7,3 +7,8 @@ node_modules
 /back-end/.env
 
 .DS_Store
+
+back-end/venv
+__pycache__/
+
+dist/
