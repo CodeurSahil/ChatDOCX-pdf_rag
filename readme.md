@@ -2,16 +2,18 @@
 
 > *ChatDOCX — Talk to Your Documents Seamlessly using RAG-based AI.*
 
-ChatDOCX is an intelligent document chat application that allows you to upload PDF and DOCX files and have natural conversations with them using advanced RAG (Retrieval-Augmented Generation) technology.
+ChatDOCX is an intelligent document chat application that allows you to upload PDF and DOCX files and have natural conversations with them using advanced RAG (Retrieval-Augmented Generation) technology with **Query Translation** and **RAG Fusion** for enhanced accuracy and comprehensive document understanding.
 
 ## ✨ **Features**
 
 - 📄 **Upload & Chat** with PDF and DOCX files
-- 🧠 **Context-aware responses** powered by RAG
+- 🧠 **Advanced RAG** with Query Translation and RAG Fusion
+- 🔄 **Multi-Query Processing** for enhanced document retrieval
 - 🎨 **Modern UI** with dark theme and smooth animations
-- 🚀 **RAG-powered backend** with intelligent document processing
+- 🚀 **Intelligent backend** with parallel query processing
 - 💬 **Natural conversations** with your documents
 - 🔄 **Session management** for multiple document chats
+- ⚡ **Enhanced accuracy** through RAG Fusion techniques
 
 ## 🚀 **Quick Start**
 
@@ -52,10 +54,13 @@ npm run dev
 
 ### **Backend**
 - 🐍 **Python Flask** API
-- 🧠 **LangChain** for RAG pipeline
+- 🧠 **Advanced LangChain** RAG pipeline
+- 🔄 **Query Translation** for multi-query processing
+- 🔀 **RAG Fusion** for enhanced retrieval
 - 🔍 **Qdrant** vector database
 - 🤖 **Google Gemini** AI model
 - 📄 **Document processing** (PDF/DOCX)
+- ⚡ **OpenAI Embeddings** for improved accuracy
 
 ### **Database/Storage**
 - 🗄️ **Qdrant** vector store for embeddings
@@ -74,6 +79,7 @@ Create a `.env` file in the `back-end` directory:
 ```env
 QDRANT_URL=http://localhost:6333
 GOOGLE_API_KEY=your_google_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 ### **Qdrant Setup**
@@ -85,10 +91,13 @@ docker run -p 6333:6333 qdrant/qdrant
 ## 🎯 **How It Works**
 
 1. **Upload** → Upload PDF/DOCX files through the web interface
-2. **Process** → Documents are split into chunks and embedded using Google's embeddings
+2. **Process** → Documents are split into chunks and embedded using OpenAI embeddings
 3. **Store** → Chunks are stored in Qdrant vector database
-4. **Chat** → When you ask questions, relevant chunks are retrieved and sent to Gemini AI
-5. **Respond** → AI generates context-aware responses based on your document content
+4. **Query Translation** → User queries are transformed into multiple related queries
+5. **RAG Fusion** → Parallel retrieval using original + transformed queries
+6. **Enhanced Context** → Combines results from all query variations
+7. **Chat** → Enriched context is sent to Gemini AI for responses
+8. **Respond** → AI generates highly accurate, context-aware responses
 
 ## 🤝 **Contributing**
 

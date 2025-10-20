@@ -1,8 +1,8 @@
 # 🧩 **ChatDOCX Backend Guide**
 
-> The backend handles file uploads, RAG processing, and API endpoints for user interaction.
+> The backend handles file uploads, advanced RAG processing with Query Translation and RAG Fusion, and API endpoints for user interaction.
 
-The ChatDOCX backend is a Flask-based API that processes documents, manages vector storage, and provides intelligent chat responses using RAG (Retrieval-Augmented Generation) technology.
+The ChatDOCX backend is a Flask-based API that processes documents, manages vector storage, and provides intelligent chat responses using advanced RAG (Retrieval-Augmented Generation) technology with **Query Translation** and **RAG Fusion** capabilities.
 
 ## 🏗️ **Core Architecture**
 
@@ -15,11 +15,13 @@ The backend is built around `main.py` which provides three main endpoints:
 - Stores vectors in Qdrant database
 - Returns document metadata and welcome message
 
-### **💬 `/chat`** — AI Conversations  
-- Processes user queries with conversation history
-- Retrieves relevant document chunks from Qdrant
-- Sends context to Google Gemini AI for responses
-- Returns formatted markdown responses
+### **💬 `/chat`** — Advanced AI Conversations  
+- **Query Translation**: Transforms user queries into multiple related queries
+- **RAG Fusion**: Parallel retrieval using multiple query variations
+- **Multi-Query Processing**: Combines results from original + transformed queries
+- Retrieves relevant document chunks from Qdrant using enhanced search
+- Sends enriched context to Google Gemini AI for responses
+- Returns formatted markdown responses with improved accuracy
 
 ### **🗑️ `/delete_session`** — Session Management
 - Clears Qdrant collections for new conversations
@@ -82,6 +84,7 @@ curl -X POST http://localhost:3000/delete_session \
 ### **Environment Variables**
 - `QDRANT_URL`: Qdrant server URL (default: http://localhost:6333)
 - `GOOGLE_API_KEY`: Google AI API key for embeddings and chat
+- `OPENAI_API_KEY`: OpenAI API key for enhanced embeddings
 
 ### **Dependencies**
 - **Flask** — Web framework
@@ -89,6 +92,7 @@ curl -X POST http://localhost:3000/delete_session \
 - **Qdrant** — Vector database
 - **Google Gemini** — AI model for chat and embeddings
 - **OpenAI Client** — Compatible API for Gemini
+- **OpenAI Embeddings** — Enhanced text embeddings (text-embedding-3-small)
 
 ## 🔧 **Key Functions**
 
@@ -100,6 +104,15 @@ def interactWithLLM(system_prompt, conversation_history_with_new_input):
     # Returns formatted AI responses
 ```
 
+### **`query_transformer()`** 🆕
+**Advanced Query Translation** - Transforms user queries into multiple related queries:
+```python
+def query_transformer(query):
+    # Generates 3 additional related queries
+    # Uses AI to create semantic variations
+    # Returns list of enhanced queries for better retrieval
+```
+
 ### **`create_retriever()`**
 Creates document retrievers from Qdrant collections:
 ```python
@@ -107,6 +120,20 @@ def create_retriever(collection_name=None):
     # Connects to existing Qdrant collection
     # Returns LangChain retriever for document search
 ```
+
+## 🚀 **Advanced RAG Features**
+
+### **🔄 Query Translation Process**
+1. **Input**: User's original query
+2. **AI Transformation**: Generates 3 semantically related queries
+3. **Parallel Processing**: All queries processed simultaneously
+4. **Enhanced Retrieval**: Combines results from all query variations
+
+### **🔀 RAG Fusion Implementation**
+- **Multi-Query Retrieval**: Searches with original + 3 transformed queries
+- **Result Aggregation**: Combines relevant documents from all searches
+- **Improved Context**: Enriches context with diverse document perspectives
+- **Better Accuracy**: Reduces missed relevant information
 
 ## 🛡️ **Error Handling**
 
