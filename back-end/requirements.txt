@@ -29,7 +29,7 @@ jsonpointer==3.0.0
 langchain==0.3.27
 langchain-community==0.3.29
 langchain-core==0.3.75
-langchain-google-genai==2.1.10
+langchain-openai==0.2.8
 langchain-qdrant==0.2.0
 langchain-text-splitters==0.3.10
 langsmith==0.4.21
@@ -67,4 +67,5 @@ zstandard==0.24.0
 Flask==3.0.3
 Flask-CORS==4.0.0
 python-docx==1.1.2
-openai==1.50.0
+docx2txt==0.8
+openai>=1.54.0

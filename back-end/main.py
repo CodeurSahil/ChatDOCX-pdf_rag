@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -21,17 +21,18 @@ CORS(app)
 # Configuration
 QDRANT_URL = os.getenv("QDRANT_URL")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize embeddings
-embeddings = GoogleGenerativeAIEmbeddings(
-    model="gemini-embedding-001",
-    google_api_key=GOOGLE_API_KEY
+embeddings = OpenAIEmbeddings(
+    model="text-embedding-3-small",
+    openai_api_key=OPENAI_API_KEY
 )
 
 # Initialize text splitter
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000,
-    chunk_overlap=200
+    chunk_size=500,
+    chunk_overlap=100
 )
 
 def format_docs(docs):
@@ -109,6 +110,34 @@ def create_retriever(collection_name=None):
         print(f"Error creating retriever: {e}")
         return None
 
+def query_transformer(query):
+    """Transform the query to make it more specific and relevant"""
+
+    system_prompt = '''
+                You are an AI Agent named "Query Transformer".
+
+                I will provide a query, and you must give me three More Queries that are similar to the query.
+
+                Your response should be a list of three more queries that are similar to the query.
+
+                Return the response in Below Format:
+                "QUERY_1#QUERY_2#QUERY_3"
+            '''
+
+    conversation = [
+        {
+            "role": "user",
+            "content": f"{system_prompt}\n\nQuery: {query}"
+        }
+    ]
+
+    result = interactWithLLM(system_prompt, conversation)
+
+    if result['success']:
+        return result['response'].split('#')
+    else:
+        return None
+
 @app.route('/upload', methods=['POST'])
 def upload_document():
     """Upload PDF or DOCX file and store in Qdrant vector store"""
@@ -170,14 +199,29 @@ def upload_document():
 
                 ---
 
-                ### **Response Format (Markdown):**
+                ### 🧾 **Response Rules**
 
-                👋 **Hi there, welcome to _ChatDOCX_!**
+                    1. Respond **directly** to the content — start your answer naturally, as if continuing a conversation about the document.
 
-                From what I’ve gathered so far, this document seems to be about **[Topic / Subject]**.  
-                It provides insights into *[1–2 short lines summarizing what it covers]*.  
+                    2. Use **Markdown** formatting for structure and emphasis:
 
-                Would you like me to dive deeper into a particular section, or give you a quick overview first?
+                    * **Bold** → for important terms
+                    * *Italic* → for subtle emphasis or tone
+                    * Lists (`-`, `1.`) → for organized details
+                    * Headings (`##`, `###`) → if dividing sections
+                    * Backticks → for code or commands
+                    * [Links](https://example.com "_blank") → must open in a new tab (`_blank`)
+
+                    3. If the topic seems broad or complex, politely ask:
+
+                    > **“Would you like to know more about this topic?”**
+
+                    4. Keep responses **under 200 words** unless specifically asked for more.
+
+                    5. Always end with a **friendly sentence or a soft follow-up question** to encourage further conversation.
+                    You may add a **light emoji** (like 😉, 🚀, or ✅) for warmth.
+
+                    6. Output must be **pure Markdown**, **without wrapping it inside triple backticks** or mentioning the format explicitly.Would you like me to dive deeper into a particular section, or give you a quick overview first?
             '''
 
             conversation_history_with_new_input = [
@@ -238,8 +282,19 @@ def chat():
             return jsonify({'error': 'Vector store not available. Please upload documents first.'}), 500
         
         # Retrieve relevant documents
-        relevant_docs = retriever.get_relevant_documents(query)
+        query_transformer_result = query_transformer(query);
+
+        print("query_transformer_result", query_transformer_result)
+
+        relevant_docs = []
+
+        for Q in query_transformer_result:
+            relevant_docs.extend(retriever.get_relevant_documents(Q))
         
+        relevant_docs.extend(retriever.get_relevant_documents(query))
+
+        print("relevant_docs", len(relevant_docs))
+
         # Format context from documents
         context = format_docs(relevant_docs)
         
@@ -249,31 +304,53 @@ def chat():
         )
 
         system_prompt = '''
-            You are an **AI Agent (RAG)** named **ChatDOCX**, designed to respond **only** based on the provided document context.
+                You are an **AI Agent (RAG)** named **ChatDOCX**, designed to respond **only** based on the provided document context.
 
-            I will provide the context of a document, and you must respond using that context.
+                I will provide the **context of a document**, and you must respond using that context.
 
-            Your response should be **short, polite, and friendly**, not exceeding **150-200 words**.
+                Your response should be **short, polite, and friendly**, not exceeding **200 words**.
 
-            You must return your response in **Markdown (.md)** format and use **bold**, *italics*, and other styling to make it engaging and visually appealing.
+                You must return your response in **Markdown (.md)** format — compatible with the `react-markdown` library — using proper styling and readability enhancements.
 
-            ---
+                ---
 
-            **Response Rules:**
-                - If the information seems extensive but important, politely ask: **"Would you like to know more about this topic?"**
-                - Return the Entire Output in .md format Compatible with 'react-markdown' library
-                - All responses must be formatted in **Markdown** to support rendering with "react-markdown".
-                - Use appropriate Markdown features for readability and style:
-                    - Use "**bold**" for key terms or emphasis.
-                    - Use "*italic*" to highlight soft tone or secondary notes.
-                    - Use bullet points ("-") or numbered lists when listing information.
-                    - Use "###" or "##" for headings if breaking content into sections.
-                    - Wrap code or commands in backticks ("likeThis") for clarity.
-                    - Use [inline links](https://example.com "_blank") when sharing link's.
-                    - In Case of Links Make Sure to Add "_blank", So that on clicking Link opens into a new page
-                - Keep responses under 150-200 words unless the user specifically asks for more.
-                - Always end with a friendly sentence or follow-up question to keep the conversation going.
-                - Add light humor or emoji when appropriate to keep it friendly and engaging (e.g., 😉, 🚀, ✅).
+                ### 🧾 **Response Rules**
+
+                    1. **Never** begin the message with greetings such as
+
+                    > “👋 Hi there!”, “Hello!”, or “Welcome to ChatDOCX!”.
+                    > These phrases are **strictly forbidden** and must **not appear** in any response.
+
+                    2. Respond **directly** to the content — start your answer naturally, as if continuing a conversation about the document.
+
+                    3. Use **Markdown** formatting for structure and emphasis:
+
+                    * **Bold** → for important terms
+                    * *Italic* → for subtle emphasis or tone
+                    * Lists (`-`, `1.`) → for organized details
+                    * Headings (`##`, `###`) → if dividing sections
+                    * Backticks → for code or commands
+                    * [Links](https://example.com "_blank") → must open in a new tab (`_blank`)
+
+                    4. If the topic seems broad or complex, politely ask:
+
+                    > **“Would you like to know more about this topic?”**
+
+                    5. Keep responses **under 200 words** unless specifically asked for more.
+
+                    6. Always end with a **friendly sentence or a soft follow-up question** to encourage further conversation.
+                    You may add a **light emoji** (like 😉, 🚀, or ✅) for warmth.
+
+                    7. Output must be **pure Markdown**, **without wrapping it inside triple backticks** or mentioning the format explicitly.
+
+                ---
+
+                ✅ **Example of Correct Response Start:**
+
+                > This document discusses **financial market trends** and *strategies for risk management*.
+                > It highlights how **portfolio diversification** impacts long-term stability.
+                > Would you like to explore specific strategies mentioned here? 😉
+
         '''
         
         # Build messages array with system prompt, context, and conversation history
@@ -290,6 +367,8 @@ def chat():
         )
         
         response_text = response.choices[0].message.content
+
+        print("response_text", response_text)
         
         return jsonify({
             'success': True,
