@@ -29,6 +29,12 @@ embeddings = OpenAIEmbeddings(
     openai_api_key=OPENAI_API_KEY
 )
 
+# Initialize OpenAI client with Gemini endpoint
+client = OpenAI(
+    api_key=GOOGLE_API_KEY,
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+)
+
 # Initialize text splitter
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=500,
@@ -53,11 +59,6 @@ def interactWithLLM(system_prompt, conversation_history_with_new_input):
     """
 
     try:
-        # Initialize OpenAI client with Gemini endpoint
-        client = OpenAI(
-            api_key=GOOGLE_API_KEY,
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
-        )
         
         # Prepare messages array
         messages = []
@@ -127,7 +128,7 @@ def query_transformer(query):
     conversation = [
         {
             "role": "user",
-            "content": f"{system_prompt}\n\nQuery: {query}"
+            "content": f"Query: {query}"
         }
     ]
 
@@ -160,7 +161,7 @@ def upload_document():
         collection_uuid = str(uuid.uuid4())
         COLLECTION_NAME = collection_uuid
 
-        print("COLLECTION_NAME", COLLECTION_NAME)
+        # print("COLLECTION_NAME", COLLECTION_NAME)
 
         # Save file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix=Path(filename).suffix) as temp_file:
@@ -227,7 +228,7 @@ def upload_document():
             conversation_history_with_new_input = [
                 {
                     "role": "user",
-                    "content": f"{system_prompt}\n\nContext: {format_docs(split_docs[:2])}"
+                    "content": f"Context: {format_docs(split_docs[:2])}"
                 }
             ]
 
@@ -284,7 +285,7 @@ def chat():
         # Retrieve relevant documents
         query_transformer_result = query_transformer(query);
 
-        print("query_transformer_result", query_transformer_result)
+        # print("query_transformer_result", query_transformer_result)
 
         relevant_docs = []
 
@@ -293,16 +294,11 @@ def chat():
         
         relevant_docs.extend(retriever.get_relevant_documents(query))
 
-        print("relevant_docs", len(relevant_docs))
+        # print("relevant_docs", len(relevant_docs))
 
         # Format context from documents
         context = format_docs(relevant_docs)
         
-        client = OpenAI(
-            api_key=GOOGLE_API_KEY,
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
-        )
-
         system_prompt = '''
                 You are an **AI Agent (RAG)** named **ChatDOCX**, designed to respond **only** based on the provided document context.
 
@@ -355,7 +351,7 @@ def chat():
         
         # Build messages array with system prompt, context, and conversation history
         messages = [
-            {"role": "system", "content": f"{system_prompt}\n\nContext: {context}"}
+            {"role": "system", "content": f"Context: {context}"}
         ]
         
         # Add conversation history
@@ -368,7 +364,7 @@ def chat():
         
         response_text = response.choices[0].message.content
 
-        print("response_text", response_text)
+        # print("response_text", response_text)
         
         return jsonify({
             'success': True,
