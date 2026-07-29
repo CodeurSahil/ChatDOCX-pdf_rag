@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import traceback
 from qdrant_client import QdrantClient
 import uuid
+from collections import Counter
 
 load_dotenv()
 
@@ -296,58 +297,16 @@ def chat():
 
         # print("relevant_docs", len(relevant_docs))
 
-        # Format context from documents
-        context = format_docs(relevant_docs)
+        doc_scores = Counter()
+        for doc in relevant_docs:
+            doc_scores[doc.page_content] += 1  # simple version
         
-        system_prompt = '''
-                You are an **AI Agent (RAG)** named **ChatDOCX**, designed to respond **only** based on the provided document context.
+        # Sort by score, take top N
+        ranked_docs = sorted(relevant_docs, key=lambda d: doc_scores[d.page_content], reverse=True)
+        top_docs = ranked_docs[:5] 
 
-                I will provide the **context of a document**, and you must respond using that context.
-
-                Your response should be **short, polite, and friendly**, not exceeding **200 words**.
-
-                You must return your response in **Markdown (.md)** format — compatible with the `react-markdown` library — using proper styling and readability enhancements.
-
-                ---
-
-                ### 🧾 **Response Rules**
-
-                    1. **Never** begin the message with greetings such as
-
-                    > “👋 Hi there!”, “Hello!”, or “Welcome to ChatDOCX!”.
-                    > These phrases are **strictly forbidden** and must **not appear** in any response.
-
-                    2. Respond **directly** to the content — start your answer naturally, as if continuing a conversation about the document.
-
-                    3. Use **Markdown** formatting for structure and emphasis:
-
-                    * **Bold** → for important terms
-                    * *Italic* → for subtle emphasis or tone
-                    * Lists (`-`, `1.`) → for organized details
-                    * Headings (`##`, `###`) → if dividing sections
-                    * Backticks → for code or commands
-                    * [Links](https://example.com "_blank") → must open in a new tab (`_blank`)
-
-                    4. If the topic seems broad or complex, politely ask:
-
-                    > **“Would you like to know more about this topic?”**
-
-                    5. Keep responses **under 200 words** unless specifically asked for more.
-
-                    6. Always end with a **friendly sentence or a soft follow-up question** to encourage further conversation.
-                    You may add a **light emoji** (like 😉, 🚀, or ✅) for warmth.
-
-                    7. Output must be **pure Markdown**, **without wrapping it inside triple backticks** or mentioning the format explicitly.
-
-                ---
-
-                ✅ **Example of Correct Response Start:**
-
-                > This document discusses **financial market trends** and *strategies for risk management*.
-                > It highlights how **portfolio diversification** impacts long-term stability.
-                > Would you like to explore specific strategies mentioned here? 😉
-
-        '''
+        # Format context f  rom documents
+        context = format_docs(top_docs)
         
         # Build messages array with system prompt, context, and conversation history
         messages = [
